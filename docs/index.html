@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GW1 — FPL model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#FBFBF9; --ink:#111318; --rule:#DCDBD4; --muted:#6E7480;
+  --signal:#1B3BCC; --warn:#B3261E; --shade:#F1F0EC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--ink);
+  font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  -webkit-font-smoothing:antialiased; padding:0 0 4rem;
+}
+.wrap{max-width:46rem;margin:0 auto;padding:0 1.25rem}
+.num{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+     font-variant-numeric:tabular-nums}
+
+/* masthead */
+header{border-bottom:3px solid var(--ink);padding:2.5rem 0 1rem;margin-bottom:1.75rem}
+h1{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:700;
+   font-size:clamp(3rem,14vw,5.5rem);line-height:.86;letter-spacing:-.02em;
+   text-transform:uppercase}
+.sub{display:flex;flex-wrap:wrap;gap:.35rem 1.25rem;margin-top:.9rem;
+     font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+
+h2{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:700;
+   font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;
+   padding-bottom:.4rem;border-bottom:1px solid var(--ink);margin:2.5rem 0 0}
+
+/* teamsheet */
+.rail{display:grid;grid-template-columns:2.4rem 1fr;gap:0 .9rem;align-items:start}
+.rail-label{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:700;
+  font-size:.7rem;letter-spacing:.12em;color:var(--muted);padding-top:.95rem;
+  border-right:1px solid var(--rule);height:100%}
+.player{display:flex;align-items:baseline;gap:.6rem;padding:.7rem 0;
+        border-bottom:1px solid var(--rule)}
+.player .nm{font-weight:600;flex:1;min-width:0}
+.player .club{font-size:.7rem;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.player .fig{font-size:.85rem;color:var(--muted)}
+.player .ep{font-weight:600;color:var(--ink);min-width:3.1rem;text-align:right}
+.cap .nm::after{content:"CAPTAIN";display:inline-block;margin-left:.55rem;
+  background:var(--signal);color:#fff;font-family:'Archivo Narrow',sans-serif;
+  font-size:.6rem;letter-spacing:.12em;padding:.12rem .38rem;vertical-align:.12em}
+.news{color:var(--warn);font-size:.75rem;padding:0 0 .6rem}
+
+.bench{background:var(--shade);padding:.35rem 1rem;margin-top:.4rem}
+.bench .player{border-bottom:1px solid #E3E2DC}
+.bench .player:last-child{border-bottom:none}
+
+table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:.3rem}
+th{font-family:'Archivo Narrow',sans-serif;font-weight:700;font-size:.68rem;
+   letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+   text-align:left;padding:.6rem .5rem .5rem 0;border-bottom:1px solid var(--rule)}
+td{padding:.6rem .5rem .6rem 0;border-bottom:1px solid var(--rule)}
+th:last-child,td:last-child{text-align:right;padding-right:0}
+.yes{color:var(--signal);font-weight:600}
+.no{color:var(--muted)}
+
+.note{font-size:.85rem;color:var(--muted);margin-top:.7rem;max-width:34rem}
+footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--rule);
+       font-size:.75rem;color:var(--muted)}
+@media(prefers-reduced-motion:no-preference){
+  .player{animation:in .4s ease both}
+  @keyframes in{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+}
+</style>
+</head><body><div class="wrap">
+
+<header>
+  <h1>Gameweek<br>1</h1>
+  <div class="sub">
+    <span>Horizon GW1&ndash;5</span>
+    <span class="num">&pound;100.0m squad</span>
+    <span class="num">222.8 pts projected</span>
+    <span>Data 2026-08-21 19:43 UTC</span>
+  </div>
+</header>
+
+<h2>Starting XI</h2>
+<div class="rail"><div class="rail-label">GK</div><div><div class="player"><span class="nm">Dubravka</span><span class="club">TOT</span><span class="fig num">&pound;4.0</span><span class="fig num">19.9%</span><span class="ep num">11.8</span></div></div></div><div class="rail"><div class="rail-label">DEF</div><div><div class="player"><span class="nm">Gabriel</span><span class="club">ARS</span><span class="fig num">&pound;8.0</span><span class="fig num">29.7%</span><span class="ep num">18.7</span></div><div class="player"><span class="nm">Virgil</span><span class="club">LIV</span><span class="fig num">&pound;6.5</span><span class="fig num">18.8%</span><span class="ep num">17.6</span></div><div class="player"><span class="nm">Guéhi</span><span class="club">MCI</span><span class="fig num">&pound;6.0</span><span class="fig num">17.1%</span><span class="ep num">16.8</span></div><div class="player"><span class="nm">Lacroix</span><span class="club">CHE</span><span class="fig num">&pound;6.0</span><span class="fig num">8.9%</span><span class="ep num">15.9</span></div></div></div><div class="rail"><div class="rail-label">MID</div><div><div class="player"><span class="nm">Enzo</span><span class="club">CHE</span><span class="fig num">&pound;7.0</span><span class="fig num">5.0%</span><span class="ep num">19.0</span></div><div class="player"><span class="nm">Anderson</span><span class="club">MCI</span><span class="fig num">&pound;6.5</span><span class="fig num">7.9%</span><span class="ep num">18.2</span></div><div class="player"><span class="nm">Rice</span><span class="club">ARS</span><span class="fig num">&pound;7.5</span><span class="fig num">18.1%</span><span class="ep num">17.8</span></div><div class="player"><span class="nm">Szoboszlai</span><span class="club">LIV</span><span class="fig num">&pound;7.0</span><span class="fig num">41.8%</span><span class="ep num">16.5</span></div></div></div><div class="rail"><div class="rail-label">FWD</div><div><div class="player cap"><span class="nm">Haaland</span><span class="club">MCI</span><span class="fig num">&pound;15.5</span><span class="fig num">69.5%</span><span class="ep num">26.0</span></div><div class="player"><span class="nm">Thiago</span><span class="club">BRE</span><span class="fig num">&pound;8.0</span><span class="fig num">17.0%</span><span class="ep num">18.7</span></div></div></div>
+
+<h2>Bench</h2>
+<div class="bench"><div class="player"><span class="nm">Konsa</span><span class="club">ARS</span><span class="fig num">&pound;4.5</span><span class="fig num">13.4%</span><span class="ep num">12.8</span></div><div class="player"><span class="nm">Obi</span><span class="club">MUN</span><span class="fig num">&pound;4.5</span><span class="fig num">1.1%</span><span class="ep num">2.3</span></div><div class="player"><span class="nm">Petrović</span><span class="club">BOU</span><span class="fig num">&pound;4.5</span><span class="fig num">3.2%</span><span class="ep num">11.7</span></div><div class="player"><span class="nm">Hughes</span><span class="club">CRY</span><span class="fig num">&pound;4.5</span><span class="fig num">12.2%</span><span class="ep num">5.6</span></div></div>
+
+
+<h2>Transfers</h2>
+<table><thead><tr><th>Out</th><th>In</th><th>&pound;</th><th>Verdict</th><th>Gain</th></tr></thead>
+<tbody><tr><td>Hackney</td><td>Schade</td><td class="num">+0.5</td><td class="yes">worth &minus;4</td><td class="num">+11.73</td></tr><tr><td>Davis</td><td>Konsa</td><td class="num">+0.5</td><td class="yes">worth &minus;4</td><td class="num">+10.88</td></tr><tr><td>Tzolakis</td><td>Kelleher</td><td class="num">+0.5</td><td class="yes">worth &minus;4</td><td class="num">+10.70</td></tr><tr><td>White</td><td>Guéhi</td><td class="num">+0.5</td><td class="yes">worth &minus;4</td><td class="num">+10.61</td></tr><tr><td>Sakamoto</td><td>Ampadu</td><td class="num">+0.5</td><td class="yes">worth &minus;4</td><td class="num">+10.40</td></tr><tr><td>Slater</td><td>Yarmoliuk</td><td class="num">+0.5</td><td class="yes">worth &minus;4</td><td class="num">+7.17</td></tr></tbody></table>
+<p class="note">Gain is expected points across the horizon. A hit needs to clear
+4 points to pay for itself.</p>
+
+<h2>Cost of overriding</h2>
+<table><thead><tr><th>Player</th><th>Pos</th><th>&pound;</th><th>Own</th><th>Cost</th></tr></thead>
+<tbody><tr><td>B.Fernandes</td><td>MID</td><td class="num">&pound;12.0</td><td class="num">52.1%</td><td class="num">0.02</td></tr><tr><td>Semenyo</td><td>MID</td><td class="num">&pound;8.5</td><td class="num">26.4%</td><td class="num">0.02</td></tr><tr><td>Raya</td><td>GK</td><td class="num">&pound;6.0</td><td class="num">37.6%</td><td class="num">0.02</td></tr><tr><td>Thiaw</td><td>DEF</td><td class="num">&pound;5.0</td><td class="num">1.6%</td><td class="num">0.02</td></tr><tr><td>Kelleher</td><td>GK</td><td class="num">&pound;5.0</td><td class="num">5.8%</td><td class="num">0.02</td></tr><tr><td>João Pedro</td><td>FWD</td><td class="num">&pound;7.5</td><td class="num">64.5%</td><td class="num">0.05</td></tr><tr><td>Richards</td><td>DEF</td><td class="num">&pound;5.0</td><td class="num">0.7%</td><td class="num">0.08</td></tr><tr><td>Mbeumo</td><td>MID</td><td class="num">&pound;8.0</td><td class="num">39.1%</td><td class="num">0.55</td></tr><tr><td>Calvert-Lewin</td><td>FWD</td><td class="num">&pound;6.0</td><td class="num">31.5%</td><td class="num">0.64</td></tr><tr><td>Schade</td><td>MID</td><td class="num">&pound;6.0</td><td class="num">3.7%</td><td class="num">0.75</td></tr></tbody></table>
+<p class="note">What you give up by forcing each player into the squad, after
+re-solving. Anything under ~1.0 means the model cannot tell them apart from its
+own picks &mdash; that is where your read of the team news is worth more.</p>
+
+<footer>
+  Generated by the expected-points model. Probabilities, not predictions &mdash;
+  roughly 40% of FPL variance is irreducible. Check Friday press conferences
+  before the deadline.
+</footer>
+</div></body></html>
