@@ -1,0 +1,62 @@
+name: FPL weekly run
+
+on:
+  schedule:
+    # Thursday 07:00 UTC — after midweek fixtures settle, well before the
+    # Friday deadline, leaving time to act on Friday press conferences.
+    - cron: "0 7 * * 4"
+  workflow_dispatch:
+    inputs:
+      horizon:
+        description: "Gameweeks to look ahead"
+        default: "5"
+      squad:
+        description: "Your 15 player ids, comma-separated (blank = optimal squad)"
+        default: ""
+      bank:
+        description: "Money in the bank, in millions"
+        default: "0"
+
+# Needed so the job can commit the refreshed page back to the repo.
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run model
+        run: |
+          ARGS="--horizon ${{ github.event.inputs.horizon || '5' }}"
+          if [ -n "${{ github.event.inputs.squad }}" ]; then
+            ARGS="$ARGS --squad ${{ github.event.inputs.squad }} --bank ${{ github.event.inputs.bank || '0' }}"
+          fi
+          python -m fplmodel.run $ARGS
+
+      - name: Show brief in the run summary
+        if: always()
+        run: cat output/*_brief.md >> $GITHUB_STEP_SUMMARY
+
+      - name: Publish the page
+        run: |
+          git config user.name  "fpl-model"
+          git config user.email "actions@github.com"
+          git add -f docs/index.html
+          git commit -m "GW brief $(date -u +%Y-%m-%d)" || echo "No change to publish"
+          git push
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fpl-output
+          path: output/
+          retention-days: 90
