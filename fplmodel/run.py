@@ -29,6 +29,9 @@ def main(argv=None) -> int:
     ap.add_argument("--free-transfers", type=int, default=1)
     ap.add_argument("--lock", type=str, default=None, help="player ids to force in")
     ap.add_argument("--ban", type=str, default=None, help="player ids to exclude")
+    ap.add_argument("--differential", type=float, default=0.0,
+                    help="0=maximise points, 0.5=moderate tilt away from template, "
+                         "1=aggressive. Useful when you are behind and need variance.")
     args = ap.parse_args(argv)
 
     players, teams, fixtures, meta = build_player_frame()
@@ -48,9 +51,17 @@ def main(argv=None) -> int:
     )
 
     ids = lambda s: [int(x) for x in s.split(",")] if s else None
-    result = optimise_squad(ep, score_col="horizon",
+
+    # FPL is a rank game. Maximising points maximises expected score against
+    # the field, but ownership drives VARIANCE around it: template narrows
+    # your spread, differentials widen it. Tilt only when you need variance.
+    own = pd.to_numeric(ep["selected_by_percent"], errors="coerce").fillna(0) / 100
+    ep["obj"] = ep["horizon"] * (1 - args.differential * own)
+    col = "obj"
+
+    result = optimise_squad(ep, score_col=col,
                             locked=ids(args.lock), banned=ids(args.ban))
-    near = sensitivity(ep, result)
+    near = sensitivity(ep, result, score_col=col)
 
     ep.sort_values("horizon", ascending=False).to_csv(
         C.OUTPUT / f"gw{gw}_projections.csv", index=False)
@@ -139,7 +150,8 @@ def _write_brief(gw, meta, result, near, transfers, horizon) -> str:
           "| Player | Pos | £ | EP | Cost of forcing in | Own |", "|---|---|---|---|---|---|"]
     for _, r in near.iterrows():
         L.append(f"| {r['web_name']} | {r['pos']} | {r['price']:.1f} | "
-                 f"{r['horizon']:.1f} | {r['reduced_cost']:.2f} | {r['selected_by_percent']}% |")
+                 f"{r.get('obj', r.get('horizon', 0)):.1f} | "
+                 f"{r['reduced_cost']:.2f} | {r['selected_by_percent']}% |")
 
     return "\n".join(L) + "\n"
 
