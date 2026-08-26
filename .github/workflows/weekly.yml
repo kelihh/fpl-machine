@@ -25,6 +25,9 @@ on:
       ban:
         description: "Player ids to exclude, comma-separated"
         default: ""
+      differential:
+        description: "0 = maximise points, 0.5 = moderate tilt to differentials, 1 = aggressive"
+        default: "0"
 
 # Needed so the job can commit the refreshed page back to the repo.
 permissions:
@@ -52,6 +55,7 @@ jobs:
           if [ -n "${{ github.event.inputs.gw }}" ];   then ARGS="$ARGS --gw ${{ github.event.inputs.gw }}"; fi
           if [ -n "${{ github.event.inputs.lock }}" ]; then ARGS="$ARGS --lock ${{ github.event.inputs.lock }}"; fi
           if [ -n "${{ github.event.inputs.ban }}" ];  then ARGS="$ARGS --ban ${{ github.event.inputs.ban }}"; fi
+          ARGS="$ARGS --differential ${{ github.event.inputs.differential || '0' }}"
           python -m fplmodel.run $ARGS
 
       - name: Show brief in the run summary
