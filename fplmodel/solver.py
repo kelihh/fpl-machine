@@ -20,11 +20,20 @@ def optimise_squad(
     score_col: str = "horizon",
     locked: list[int] | None = None,
     banned: list[int] | None = None,
+    captain_col: str | None = None,
 ) -> dict:
-    """Pick the optimal 15, XI, captain and bench order."""
+    """Pick the optimal 15, XI, captain and bench order.
+
+    captain_col defaults to the raw points column rather than score_col.
+    The armband already doubles your variance, so discounting it for
+    ownership double-counts and can hand the captaincy to a differential
+    with a materially lower true ceiling.
+    """
     df = ep[ep["status"] != "u"].reset_index(drop=True)
+    cap_col = captain_col or ("horizon" if "horizon" in df.columns else score_col)
     ids = df["id"].tolist()
     score = dict(zip(ids, df[score_col]))
+    cap_score = dict(zip(ids, df[cap_col]))
     price = dict(zip(ids, df["price"]))
     pos = dict(zip(ids, df["pos"]))
     club = dict(zip(ids, df["team"]))
@@ -37,7 +46,7 @@ def optimise_squad(
     # Bench points are worth something but not much.
     bench_w = sum(C.BENCH_WEIGHT) / len(C.BENCH_WEIGHT)
     prob += pulp.lpSum(
-        score[i] * xi[i] + score[i] * cap[i] + score[i] * bench_w * (sq[i] - xi[i])
+        score[i] * xi[i] + cap_score[i] * cap[i] + score[i] * bench_w * (sq[i] - xi[i])
         for i in ids
     )
 
