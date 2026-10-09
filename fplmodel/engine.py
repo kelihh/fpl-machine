@@ -35,12 +35,21 @@ def minutes_model(df: pd.DataFrame) -> pd.DataFrame:
     lam = mins / (mins + C.PRIOR_STRENGTH)
     out["p_start"] = lam * start_rate + (1 - lam) * 0.25
 
-    # In-season form takes over once there are minutes on the board.
+    # In-season role takes over once the season is underway.
+    #
+    # Confidence must be driven by GAMEWEEKS OBSERVED, not by minutes
+    # played. Weighting by minutes means a player with zero minutes gets
+    # zero weight on his current season -- so the model keeps insisting
+    # last year's starter will start, when five straight benchings are the
+    # single most informative thing on record. This mis-rated a 0-minute
+    # backup keeper at p_start 0.77 and made Bench Boost look viable.
     if out["starts"].fillna(0).sum() > 0:
-        played = out["minutes"].fillna(0)
-        gw_played = max(int(out["starts"].fillna(0).max()), 1)
+        gw_played = max(
+            int(out.get("gw_played", pd.Series([0])).max() or 0),
+            int(out["starts"].fillna(0).max()), 1,
+        )
         current = (out["starts"].fillna(0) / gw_played).clip(0, 1)
-        conf = (played / (played + 270)).clip(0, 1)
+        conf = gw_played / (gw_played + C.ROLE_PRIOR_GAMES)
         out["p_start"] = (1 - conf) * out["p_start"] + conf * current
 
     # Availability override.
@@ -72,7 +81,8 @@ def _p60_from_mps(mps: pd.Series) -> pd.Series:
 
 # --------------------------------------------------------------- points
 def expected_points(
-    players: pd.DataFrame, fixt: pd.DataFrame, strength: pd.DataFrame
+    players: pd.DataFrame, fixt: pd.DataFrame, strength: pd.DataFrame,
+    detail: bool = False,
 ) -> pd.DataFrame:
     """Expected points for every player for one gameweek."""
     df = minutes_model(players)
@@ -94,6 +104,8 @@ def expected_points(
     pos_goal_pts = df["pos"].map(C.GOAL_POINTS)
     xg = df["p_xg90"].fillna(0.0) * mins_frac * att_mult
     xa = df["p_xa90"].fillna(0.0) * mins_frac * att_mult
+    df["sim_xg"], df["sim_xa"] = xg, xa
+    df["sim_lam_gc"] = df["xg_against"].clip(0.15, 4.0)
     df["pts_goals"] = xg * pos_goal_pts
     df["pts_assists"] = xa * C.ASSIST_POINTS
 
@@ -136,6 +148,12 @@ def expected_points(
     # Cameo: one appearance point plus a small slice of attacking upside.
     cameo_value = 1.0 + 0.22 * (df["pts_goals"] + df["pts_assists"])
     df["true_total"] = df["p_start"] * df["if_start"] + df["p_cameo"] * cameo_value
+
+    if detail:
+        # Per-player-per-fixture parameters, for the simulator. Everything
+        # downstream of here collapses to one row per player and throws the
+        # distribution away, which is exactly what correlated risk needs.
+        return df
 
     # Collapse doubles, drop blanks.
     keyed = df.groupby("id").agg(
