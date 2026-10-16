@@ -16,6 +16,7 @@ import pandas as pd
 from . import config as C
 from .data import build_player_frame
 from .engine import horizon_points
+from .season import blend_rates, ensemble_score, fetch_history
 from .solver import optimise_squad, sensitivity, suggest_transfers
 from .teams import team_strength
 
@@ -38,6 +39,20 @@ def main(argv=None) -> int:
     gw = args.gw or meta["next_gw"]
     print(f"GW{gw} | data pulled {meta['pulled']} | {len(players)} players", file=sys.stderr)
 
+    # Current-season evidence. Without this the scheduled run uses only
+    # prior-season per-90 rates and publishes a materially different model
+    # from the one the backtest measures: 0.370 against 0.430.
+    hist = None
+    if gw > 1:
+        try:
+            hist = fetch_history()
+            players = blend_rates(players, hist, gw - 1)
+            print(f"blended {hist['round'].max()} gameweeks of current-season form",
+                  file=sys.stderr)
+        except Exception as exc:  # noqa: BLE001 -- never fail the weekly run
+            print(f"WARNING: current-season blend unavailable ({exc}); "
+                  "falling back to prior-season rates only", file=sys.stderr)
+
     strength = team_strength(players, teams)
     ep = horizon_points(players, fixtures, strength, gw, args.horizon)
 
@@ -55,6 +70,17 @@ def main(argv=None) -> int:
     # FPL is a rank game. Maximising points maximises expected score against
     # the field, but ownership drives VARIANCE around it: template narrows
     # your spread, differentials widen it. Tilt only when you need variance.
+    # Market ensemble: points-per-game and ownership carry information the
+    # engine has no column for -- set-piece duty changing, a manager's trust,
+    # a penalty-taker swap. Leave-one-gameweek-out validated.
+    if hist is not None:
+        try:
+            ep["horizon"] = pd.Series(
+                ensemble_score(ep, hist, gw - 1, col="horizon"), index=ep.index)
+            print("applied market ensemble to the horizon", file=sys.stderr)
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARNING: ensemble unavailable ({exc})", file=sys.stderr)
+
     own = pd.to_numeric(ep["selected_by_percent"], errors="coerce").fillna(0) / 100
     ep["obj"] = ep["horizon"] * (1 - args.differential * own)
     col = "obj"
@@ -91,6 +117,7 @@ def main(argv=None) -> int:
         "transfers": (transfers.head(6).to_dict("records")
                       if transfers is not None and not transfers.empty else []),
         "near": near.to_dict("records") if not near.empty else [],
+        "sim": _simulate(players, teams, fixtures, gw, sq),
     }
     (C.OUTPUT / f"gw{gw}_data.json").write_text(json.dumps(payload, indent=2, default=str))
 
@@ -99,6 +126,33 @@ def main(argv=None) -> int:
 
     print(brief)
     return 0
+
+
+def _simulate(players, teams, fixtures, gw: int, squad: pd.DataFrame) -> dict | None:
+    """Distribution for the chosen XI, not just its mean.
+
+    The mean is what the solver maximises; the shape is what decides whether
+    a gameweek is survivable. Returns None rather than failing the run, since
+    the brief is still useful without it.
+    """
+    try:
+        from .engine import expected_points
+        from .simulate import simulate_xi, summarise
+        from .teams import fixture_expectations, team_strength
+
+        strength = team_strength(players, teams)
+        fx = fixture_expectations(strength, fixtures, gw)
+        detail = expected_points(players, fx, strength, detail=True)
+
+        xi = squad[squad["starting"]]["id"].tolist()
+        captain = int(squad[squad["captain"]]["id"].iloc[0])
+        if not set(xi) <= set(detail["id"]):
+            return None
+        totals, _ = simulate_xi(detail, xi, captain, n_sims=20_000, seed=7)
+        return summarise(totals, "xi")
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARNING: simulation skipped ({exc})", file=sys.stderr)
+        return None
 
 
 def _rows(df: pd.DataFrame) -> list[dict]:

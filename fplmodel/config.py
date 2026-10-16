@@ -15,6 +15,8 @@ OUTPUT.mkdir(exist_ok=True)
 # ---------------------------------------------------------------- sources
 FPL_BOOTSTRAP = "https://fantasy.premierleague.com/api/bootstrap-static/"
 FPL_FIXTURES = "https://fantasy.premierleague.com/api/fixtures/"
+# Per-gameweek splits per player; {} is the element id.
+FPL_ELEMENT_SUMMARY = "https://fantasy.premierleague.com/api/element-summary/{}/"
 
 # Prior-season archive (same FPL API fields, just snapshotted).
 # Cloned from https://github.com/vaastav/Fantasy-Premier-League

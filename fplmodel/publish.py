@@ -58,6 +58,12 @@ h2{font-family:'Archivo Narrow','Arial Narrow',sans-serif;font-weight:700;
   font-size:.6rem;letter-spacing:.12em;padding:.12rem .38rem;vertical-align:.12em}
 .news{color:var(--warn);font-size:.75rem;padding:0 0 .6rem}
 
+.dist{display:grid;grid-template-columns:repeat(auto-fit,minmax(6rem,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:.5rem}
+.dist .cell{background:var(--paper);padding:.65rem .7rem}
+.dist .k{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.dist .v{font-weight:600;font-size:1.25rem;margin-top:.1rem}
+
 .bench{background:var(--shade);padding:.35rem 1rem;margin-top:.4rem}
 .bench .player{border-bottom:1px solid #E3E2DC}
 .bench .player:last-child{border-bottom:none}
@@ -115,6 +121,8 @@ def _page(p: dict) -> str:
 <h2>Starting XI</h2>
 {_teamsheet(p['xi'])}
 
+{_sim(p.get('sim'))}
+
 <h2>Bench</h2>
 <div class="bench">{"".join(_player(x) for x in p['bench'])}</div>
 
@@ -128,6 +136,35 @@ def _page(p: dict) -> str:
 </footer>
 </div></body></html>
 """
+
+
+def _sim(sim: dict | None) -> str:
+    """The distribution behind the XI.
+
+    The solver reports a mean. The mean does not tell you whether a 39 is
+    unlucky or predictable, which is the only question worth asking after a
+    bad week.
+    """
+    if not sim:
+        return ""
+    cells = [
+        ("Mean", f"{sim['mean']}"), ("Median", f"{sim['median']}"),
+        ("10th pct", f"{sim['p10']}"), ("90th pct", f"{sim['p90']}"),
+        ("Below 40", f"{sim['P<40']}%"), ("Above 70", f"{sim['P>70']}%"),
+    ]
+    body = "".join(
+        f'<div class="cell"><div class="k">{html.escape(k)}</div>'
+        f'<div class="v num">{html.escape(v)}</div></div>'
+        for k, v in cells
+    )
+    return (
+        '<h2>The week, simulated</h2>\n'
+        f'<div class="dist">{body}</div>\n'
+        '<p class="note">Twenty thousand simulated gameweeks. Each match is '
+        'drawn first and the players conditional on it, so teammates share a '
+        'clean sheet and a scoreline instead of being treated as independent '
+        'bets.</p>'
+    )
 
 
 def _teamsheet(players: list[dict]) -> str:

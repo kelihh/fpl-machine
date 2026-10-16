@@ -17,8 +17,12 @@ Both weights are fitted by backtest (see `backtest.py`), not guessed.
 """
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
+import requests
 
 from . import config as C
 
@@ -32,6 +36,55 @@ RATE_MAP = {
     "p_bonus90": "bonus",
     "p_gc90": "goals_conceded",
 }
+
+
+def fetch_history(path=None, max_age_hours: float = 6.0) -> pd.DataFrame:
+    """Per-gameweek history for every player with minutes, from the API.
+
+    `bootstrap-static` gives season totals but not the per-gameweek splits,
+    and the splits are what `blend_rates` and the backtest both need. One
+    `element-summary` call per player, which is ~450 requests and finishes in
+    a couple of seconds in parallel. Cached so repeated local runs are free;
+    in CI the cache is always cold, which is the case this function exists
+    for -- before it, the scheduled run silently fell back to prior-season
+    rates and published a different model from the one being tuned.
+    """
+    import concurrent.futures as cf
+    import time
+
+    path = Path(path or (C.CACHE / "gw_history.csv"))
+    if path.exists() and (time.time() - path.stat().st_mtime) < max_age_hours * 3600:
+        return load_history(path)
+
+    bs = json.loads((C.CACHE / "bootstrap.json").read_text())
+    ids = [int(e["id"]) for e in bs["elements"]
+           if pd.to_numeric(e.get("minutes"), errors="coerce") > 0]
+
+    session = requests.Session()
+    session.headers.update({"User-Agent": "fpl-model/1.0"})
+
+    def one(pid: int):
+        for _ in range(3):
+            try:
+                r = session.get(C.FPL_ELEMENT_SUMMARY.format(pid), timeout=25)
+                if r.status_code == 200:
+                    return r.json().get("history", [])
+            except requests.RequestException:
+                time.sleep(0.5)
+        return []
+
+    rows: list[dict] = []
+    with cf.ThreadPoolExecutor(max_workers=12) as pool:
+        for hist in pool.map(one, ids):
+            rows.extend(hist)
+
+    if not rows:
+        raise RuntimeError("element-summary returned nothing; refusing to "
+                           "publish a run with no current-season data")
+    df = pd.DataFrame(rows)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    return load_history(path)
 
 
 def load_history(path=None) -> pd.DataFrame:
