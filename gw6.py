@@ -7,8 +7,8 @@ from fplmodel.teams import team_strength, fixture_expectations
 from fplmodel.engine import expected_points, horizon_points
 import fplmodel.config as C
 
-GW = 6
-SQUAD = [1, 497, 445, 87, 388, 204, 4, 453, 94, 13, 481, 68, 411, 346, 106]
+GW = 7
+SQUAD = [1, 497, 445, 87, 388, 204, 4, 453, 94, 124, 481, 68, 411, 346, 106]
 
 base, teams, fixtures, meta = build_player_frame()
 hist = load_history()
@@ -38,7 +38,7 @@ ep["ha"] = ep["team"].map(home).map({True: "H", False: "A"})
 ep["fixid"] = ep["team"].map({int(f[k]): int(f["id"]) for _, f in fxg.iterrows() for k in ("team_h", "team_a")})
 ep["xgf"] = ep["team"].map(dict(zip(fx["team"], fx["xg_for"])))
 ep["xga"] = ep["team"].map(dict(zip(fx["team"], fx["xg_against"])))
-ep.to_csv("cache/gw6_ep.csv", index=False)
+ep.to_csv("cache/gw7_ep.csv", index=False)
 
 pd.set_option("display.width", 260)
 cols = ["id", "web_name", "club", "pos", "price", "opp", "ha", "p_start", "true_total",
