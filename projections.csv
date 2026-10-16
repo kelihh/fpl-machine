@@ -1,3 +1,3 @@
 gw,projected,p10,median,p90,p_under40,p_over70,chip,transfers,actual,error,in_band,note
-6,64.3,44,63,86,5.2,33.4,,1,39,-25.3,False,Rice->Gross; no European-load adjustment existed yet
-7,83.2,51,82,116,2.7,67.6,Triple Captain,1,,,,Anderson->Cherki; Gross/Tavernier/De Cuyper discounted for Thu European minutes
+6,64.3,44,63,86,5.2,33.4,,1,39.0,-25.3,False,Rice->Gross; no European-load adjustment existed yet
+7,82.5,52,81,114,2.5,67.6,Triple Captain,1,,,,Thiaw->De Cuyper (revised from Anderson->Cherki after adversarial review); European-load discounted
