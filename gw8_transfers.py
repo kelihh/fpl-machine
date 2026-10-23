@@ -4,7 +4,7 @@ import itertools, numpy as np, pandas as pd
 
 ep = pd.read_csv("cache/gw8_ep.csv")
 SQUAD = [1, 497, 115, 87, 388, 204, 4, 453, 94, 124, 481, 68, 411, 346, 106]
-BANK = 18
+BANK = 17
 XI_MIN = {"GK": 1, "DEF": 3, "MID": 2, "FWD": 1}
 XI_MAX = {"GK": 1, "DEF": 5, "MID": 5, "FWD": 3}
 POSQ = {"GK": 2, "DEF": 5, "MID": 5, "FWD": 3}
