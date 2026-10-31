@@ -1,3 +1,4 @@
 gw,projected,p10,median,p90,p_under40,p_over70,chip,transfers,actual,error,in_band,note
 6,64.3,44,63,86,5.2,33.4,,1,39.0,-25.3,False,Rice->Gross; no European-load adjustment existed yet
 7,82.5,52,81,114,2.5,67.6,Triple Captain,1,,,,Thiaw->De Cuyper (revised from Anderson->Cherki after adversarial review); European-load discounted
+9,63.9,44,63,85,4.8,32.0,,1,,,,João Pedro (thigh, 0%, unknown return) out for Evanilson; 3-4-3; Haaland C, Tavernier V. Isak instead if bank >= 1.3m (horizon 200.7 vs 198.1, but worse this week vs ARS)
