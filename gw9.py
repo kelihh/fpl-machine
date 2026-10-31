@@ -7,7 +7,7 @@ from fplmodel.teams import team_strength, fixture_expectations
 from fplmodel.engine import expected_points, horizon_points
 
 GW = 9
-SQUAD = [1, 497, 115, 4, 388, 87, 204, 124, 94, 68, 453, 481, 411, 165, 346]
+SQUAD = [1, 497, 115, 4, 388, 87, 204, 124, 94, 68, 453, 481, 411, 379, 346]
 
 base, teams, fixtures, meta = build_player_frame()
 hist = load_history()

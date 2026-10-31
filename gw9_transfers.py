@@ -3,7 +3,7 @@ import warnings; warnings.filterwarnings("ignore")
 import itertools, sys, numpy as np, pandas as pd
 
 ep = pd.read_csv("cache/gw9_ep.csv")
-SQUAD = [1, 497, 115, 4, 388, 87, 204, 124, 94, 68, 453, 481, 411, 165, 346]
+SQUAD = [1, 497, 115, 4, 388, 87, 204, 124, 94, 68, 453, 481, 411, 379, 346]
 BANK = int(float(sys.argv[1]) * 10) if len(sys.argv) > 1 else 0
 POSQ = {"GK": 2, "DEF": 5, "MID": 5, "FWD": 3}
 SHAPES = [(d, m, 10 - d - m) for d in range(3, 6) for m in range(2, 6)
