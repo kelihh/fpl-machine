@@ -177,8 +177,25 @@ sensitivity discipline.
 
 ## Calibration
 
-Once gameweeks have been played, backtest against `data/<season>/gws/` in
-the archive: correlate predicted `true_total` against realised points, and
-tune `PRIOR_STRENGTH`, `XG_PRIOR_WEIGHT` and the logistic centre in
-`_p60_from_mps`. Until then the parameters are reasoned defaults, not
-fitted ones.
+**Measured after GW11 — see [docs/calibration.md](docs/calibration.md).**
+Headlines, out-of-sample over GW3-11:
+
+- **Ranking works.** Pearson 0.424 / Spearman 0.495 across ~460 players
+  per week, against 0.329 for ownership and 0.194 for price. Beats
+  ownership 7 weeks in 9, price 9 in 9.
+- **The skill is between tiers, not within them.** Restricted to players
+  projected 3.0-7.5, Spearman falls to 0.109 and goes negative in 2 of 9
+  weeks. That band contains every in-squad decision: bench order, the
+  marginal midfielder, most captaincy calls. Use the model to pick
+  transfers from the full pool; do not trust it to order a bench.
+- **Squad totals run ~30% hot and the intervals are too narrow.** Four
+  measured gameweeks, four undershoots, mean realised/projected 0.67,
+  two of four outside a p10-p90 band meant to miss one in five.
+
+Not yet corrected: n=4 on the squad-level figures is too thin to fit
+against, and scaling the output would mask the cause rather than fix it.
+`PRIOR_STRENGTH`, `XG_PRIOR_WEIGHT` and the logistic centre in
+`_p60_from_mps` remain reasoned defaults. The three suspects for the high
+bias are listed under Known weaknesses: bonus from realised history
+rather than BPS mechanics, no rotation term, and an unverified
+`DEFCON_THRESHOLD`.
