@@ -95,9 +95,12 @@ def main(argv=None) -> int:
 
     transfers = None
     if args.squad:
+        # score_col must be the tilted objective, not the raw horizon.
+        # Without it --differential silently did nothing for anyone who
+        # already owns a squad -- i.e. the only case the flag is for.
         transfers = suggest_transfers(
             ep, ids(args.squad), bank=int(args.bank * 10),
-            free_transfers=args.free_transfers,
+            free_transfers=args.free_transfers, score_col=col,
         )
         transfers.to_csv(C.OUTPUT / f"gw{gw}_transfers.csv", index=False)
 
