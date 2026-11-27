@@ -34,6 +34,12 @@ SAVES_PER_POINT = 3
 # Defensive-contribution thresholds. VERIFY these against the current
 # rules each season -- they changed when DefCon was introduced and the
 # engine is sensitive to them.
+# VERIFIED 2026-11-27 by derivation, not guesswork. Reconstructed every
+# player-gameweek's points from the known components across GW1-11 and read
+# off where the 2-point residual appears. Defenders: 0 of 68 fired at 9,
+# 64 of 64 at 10. Midfielders: 0 of 60 at 11, 30 of 30 at 12. Unambiguous,
+# and it matches what had been assumed since GW1 -- the assumption was
+# right, it was just never checked, and it has since swung two selections.
 DEFCON_THRESHOLD = {"GK": 999, "DEF": 10, "MID": 12, "FWD": 12}
 DEFCON_POINTS = 2
 
